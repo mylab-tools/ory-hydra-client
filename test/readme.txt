@@ -1,0 +1,1 @@
+You should call migrate.bat to tune db at the first time 
