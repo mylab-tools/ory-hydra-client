@@ -1,30 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.TestHost;
 using MyLab.OryHydraClient;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace IntegrationTests
 {
-    public class TokenIssuingBehavior : IAsyncLifetime
+    public partial class TokenIssuingBehavior : IAsyncLifetime
     {
-        private readonly ITestOutputHelper _output;
-        private readonly IOryHydraPublicV110 _pub;
-        private readonly IOryHydraAdminV110 _admin;
-
-        private CreatedClient _client;
-
-        public TokenIssuingBehavior(ITestOutputHelper output)
-        {
-            _output = output;
-            _pub = TestTools.CreatePublicApiClient(output); 
-            _admin = TestTools.CreateAdminApiClient(output); 
-        }
-
         [Fact]
         public async Task ShouldStartAuthorization()
         {
@@ -51,65 +33,57 @@ namespace IntegrationTests
 
             //Act
             var resp = await _admin.AcceptLoginRequestAsync(acceptReq, loginChallenge);
-            var redirectUrl = await AfterLoginRequest(resp.ResponseContent.RedirectTo, authResp.Cookies);
+            var redirectUrl = await AfterLoginAcceptRequest(resp.ResponseContent.RedirectTo, authResp.AuthCsrfCookie);
 
             _output.WriteLine("URL: " + redirectUrl);
 
             //Assert
-            Assert.StartsWith(TestTools.ConsentEndpoint + "?consent_challenge=", redirectUrl);
+            Assert.StartsWith(TestTools.ConsentEndpoint + "?consent_challenge=", redirectUrl.TargetLocation);
         }
 
-        public async Task InitializeAsync()
+        [Fact]
+        public async Task ShouldConsentLoginRequest()
         {
-            _client = await TestTools.CreateClientAsync(_admin);
-        }
-
-        public async Task DisposeAsync()
-        {
-            await _client.DisposeAsync();
-        }
-
-        async Task<(string TargetLocation, string LoginChallenge, string Cookies)> Authenticate()
-        {
-            var resp = await _pub.Authenticate(TestTools.ScopesFooBar, _client.ClientId, TestTools.AvailableRedirectUri, "12345678");
-
-            var targetLocation = resp?.ResponseMessage?.Headers?.Location?.ToString();
-
-            if (targetLocation == null)
-                throw new InvalidOperationException("Target location is empty");
-
-            int loginChallengeDelimiter = targetLocation.IndexOf("=", StringComparison.InvariantCulture);
-            if(loginChallengeDelimiter < 0)
-                throw new InvalidOperationException("Target location ash wrong content");
-
-            var loginChallenge = targetLocation.Substring(loginChallengeDelimiter + 1);
-
-            var cookies = resp.ResponseMessage.Headers.GetValues("Set-Cookie").FirstOrDefault();
-
-            return (targetLocation, loginChallenge, cookies);
-        }
-
-        async Task<string> AfterLoginRequest(string uri, string csrfCookies)
-        {
-            var httpHandler = new HttpClientHandler();
-
-            httpHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
-            httpHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
-
-            var httpClient = new HttpClient(httpHandler)
-            {
-                DefaultRequestHeaders =
+            //Arrange
+            var authResp = await Authenticate();
+            var accLoginResp = await _admin.AcceptLoginRequestAsync(
+                new AcceptLoginReqRequest
                 {
-                    {"cookie", csrfCookies}
+                    Subject = "foo"
+                }, 
+                authResp.LoginChallenge);
+
+            var afterLoginAccResp = await AfterLoginAcceptRequest(accLoginResp.ResponseContent.RedirectTo, authResp.AuthCsrfCookie);
+
+            var consentRequest = new AcceptConsentReqRequest
+            {
+                Session = new Session
+                {
+                    AccessToken = new Dictionary<string, string>
+                    {
+                        {"name", "Bob"}
+                    },
+                    IdToken = new Dictionary<string, string>
+                    {
+                        {"role", "tester"}
+                    }
+                },
+                GrantScope = new []
+                {
+                    TestTools.ScopeBar
                 }
             };
 
-            var msg = await httpClient.GetAsync(uri);
+            //Act
+            var acceptConsentResponse = await _admin.AcceptConsentRequestAsync(consentRequest, afterLoginAccResp.ConsentChallenge);
 
-            if(msg.StatusCode != HttpStatusCode.Redirect)
-                throw new InvalidOperationException("Wrong response status code: " + msg.StatusCode);
+            var callbackUrl = await AfterConsentAcceptRequest(acceptConsentResponse.RedirectTo, afterLoginAccResp.ConsentCsrfCookie);
 
-            return msg.Headers.Location?.ToString();
+            _output.WriteLine("URL: " + callbackUrl);
+
+            //Assert
+            Assert.StartsWith(TestTools.AvailableRedirectUri, callbackUrl);
+            Assert.DoesNotContain("error", callbackUrl);
         }
     }
 }
