@@ -5,7 +5,7 @@ using Xunit;
 
 namespace IntegrationTests
 {
-    public partial class TokenIssuingBehavior : IAsyncLifetime
+    public partial class TokenIssuingBehavior
     {
         [Fact]
         public async Task ShouldStartAuthorization()
@@ -13,7 +13,7 @@ namespace IntegrationTests
             //Arrange
 
             //Act
-            var resp = await Authenticate();
+            var resp = await StartAuthenticate();
 
             //Assert
             Assert.StartsWith(TestTools.LoginEndpoint + "?login_challenge=",resp.TargetLocation);
@@ -23,7 +23,7 @@ namespace IntegrationTests
         public async Task ShouldAcceptLoginRequest()
         {
             //Arrange
-            var authResp = await Authenticate();
+            var authResp = await StartAuthenticate();
             var loginChallenge = authResp.LoginChallenge;
 
             var acceptReq = new AcceptLoginReqRequest
@@ -32,10 +32,10 @@ namespace IntegrationTests
             };
 
             //Act
-            var resp = await _admin.AcceptLoginRequestAsync(acceptReq, loginChallenge);
+            var resp = await AdminApi.AcceptLoginRequestAsync(acceptReq, loginChallenge);
             var redirectUrl = await AfterLoginAcceptRequest(resp.ResponseContent.RedirectTo, authResp.AuthCsrfCookie);
 
-            _output.WriteLine("URL: " + redirectUrl);
+            Output.WriteLine("URL: " + redirectUrl);
 
             //Assert
             Assert.StartsWith(TestTools.ConsentEndpoint + "?consent_challenge=", redirectUrl.TargetLocation);
@@ -45,8 +45,8 @@ namespace IntegrationTests
         public async Task ShouldConsentLoginRequest()
         {
             //Arrange
-            var authResp = await Authenticate();
-            var accLoginResp = await _admin.AcceptLoginRequestAsync(
+            var authResp = await StartAuthenticate();
+            var accLoginResp = await AdminApi.AcceptLoginRequestAsync(
                 new AcceptLoginReqRequest
                 {
                     Subject = "foo"
@@ -75,11 +75,11 @@ namespace IntegrationTests
             };
 
             //Act
-            var acceptConsentResponse = await _admin.AcceptConsentRequestAsync(consentRequest, afterLoginAccResp.ConsentChallenge);
+            var acceptConsentResponse = await AdminApi.AcceptConsentRequestAsync(consentRequest, afterLoginAccResp.ConsentChallenge);
 
             var callbackUrl = await AfterConsentAcceptRequest(acceptConsentResponse.RedirectTo, afterLoginAccResp.ConsentCsrfCookie);
 
-            _output.WriteLine("URL: " + callbackUrl);
+            Output.WriteLine("URL: " + callbackUrl);
 
             //Assert
             Assert.StartsWith(TestTools.AvailableRedirectUri, callbackUrl);

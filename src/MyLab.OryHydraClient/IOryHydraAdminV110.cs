@@ -44,5 +44,12 @@ namespace MyLab.OryHydraClient
         [Delete("clients/{id}")]
         [ExpectedCode(HttpStatusCode.NoContent)]
         Task DeleteClientAsync([Path] string id);
+
+        /// <summary>
+        /// Provides login request details
+        /// </summary>
+        /// <remarks>https://www.ory.sh/hydra/docs/next/reference/api/#operation/getLoginRequest</remarks>
+        [Get("oauth2/auth/requests/login")]
+        Task<LoginRequestDto> GetLoginRequest([Query("login_challenge")] string loginChallenge);
     }
 }

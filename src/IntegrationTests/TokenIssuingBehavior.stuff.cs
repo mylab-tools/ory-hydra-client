@@ -8,52 +8,16 @@ using Xunit.Abstractions;
 
 namespace IntegrationTests
 {
-    public partial class TokenIssuingBehavior
+
+    public partial class TokenIssuingBehavior : ClientBasedTest
     {
-        private readonly ITestOutputHelper _output;
-        private readonly IOryHydraPublicV110 _pub;
-        private readonly IOryHydraAdminV110 _admin;
-        private CreatedClient _client;
 
         public TokenIssuingBehavior(ITestOutputHelper output)
+        : base(output)
         {
-            _output = output;
-            _pub = TestTools.CreatePublicApiClient(output);
-            _admin = TestTools.CreateAdminApiClient(output);
         }
 
-        public async Task InitializeAsync()
-        {
-            _client = await TestTools.CreateClientAsync(_admin);
-        }
-
-        public async Task DisposeAsync()
-        {
-            await _client.DisposeAsync();
-        }
-
-        private async Task<(string TargetLocation, string LoginChallenge, string AuthCsrfCookie)> Authenticate()
-        {
-            var resp = await _pub.Authenticate(TestTools.ScopesFooBar, _client.ClientId, TestTools.AvailableRedirectUri,
-                "12345678");
-
-            var targetLocation = resp?.ResponseMessage?.Headers?.Location?.ToString();
-
-            if (targetLocation == null)
-                throw new InvalidOperationException("Target location is empty");
-
-            int loginChallengeDelimiter = targetLocation.IndexOf("=", StringComparison.InvariantCulture);
-            if (loginChallengeDelimiter < 0)
-                throw new InvalidOperationException("Target location ash wrong content");
-
-            var loginChallenge = targetLocation.Substring(loginChallengeDelimiter + 1);
-
-            var authCsrfCookie = resp.ResponseMessage.Headers
-                .GetValues("Set-Cookie")
-                .FirstOrDefault(c => c.StartsWith("oauth2_authentication_csrf="));
-
-            return (targetLocation, loginChallenge, authCsrfCookie);
-        }
+        
 
         private async Task<(string TargetLocation, string ConsentChallenge, string AuthSessCookie, string ConsentCsrfCookie)> AfterLoginAcceptRequest(string uri, string authCsrfCookie)
         {
@@ -117,11 +81,6 @@ namespace IntegrationTests
 
             if (locationStr == null)
                 throw new InvalidOperationException("Target location is empty");
-            //int loginChallengeDelimiter = locationStr.IndexOf("=", StringComparison.InvariantCulture);
-            //if (loginChallengeDelimiter < 0)
-            //    throw new InvalidOperationException("Target location ash wrong content");
-
-            //var consentChallenge = locationStr.Substring(loginChallengeDelimiter + 1);
 
             return locationStr;
         }

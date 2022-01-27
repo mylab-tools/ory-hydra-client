@@ -1,5 +1,5 @@
 using System;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -52,6 +52,30 @@ namespace IntegrationTests
             return new CreatedClient(clientId, clientSecret, adminApi);
         }
 
+        public static async Task<(string TargetLocation, string LoginChallenge, string AuthCsrfCookie)> StartAuthenticate(
+            IOryHydraPublicV110 api, string clientId, string state = "foo-state")
+        {
+            var resp = await api.Authenticate(TestTools.ScopesFooBar, clientId, TestTools.AvailableRedirectUri,
+                state);
+
+            var targetLocation = resp?.ResponseMessage?.Headers?.Location?.ToString();
+
+            if (targetLocation == null)
+                throw new InvalidOperationException("Target location is empty");
+
+            int loginChallengeDelimiter = targetLocation.IndexOf("=", StringComparison.InvariantCulture);
+            if (loginChallengeDelimiter < 0)
+                throw new InvalidOperationException("Target location ash wrong content");
+
+            var loginChallenge = targetLocation.Substring(loginChallengeDelimiter + 1);
+
+            var authCsrfCookie = resp.ResponseMessage.Headers
+                .GetValues("Set-Cookie")
+                .FirstOrDefault(c => c.StartsWith("oauth2_authentication_csrf="));
+
+            return (targetLocation, loginChallenge, authCsrfCookie);
+        }
+
         static IServiceProvider CreateServiceProvider(ITestOutputHelper output)
         {
             return new ServiceCollection()
@@ -80,31 +104,6 @@ namespace IntegrationTests
                 )
                 .AddLogging(l => l.AddFilter(_ => true).AddXUnit(output))
                 .BuildServiceProvider();
-        }
-    }
-
-    class CreatedClient : IAsyncDisposable
-    {
-        private readonly string _clientSecret;
-        private readonly IOryHydraAdminV110 _admin;
-
-        public string ClientId { get; }
-
-        public CreatedClient(string clientId, string clientSecret, IOryHydraAdminV110 admin)
-        {
-            ClientId = clientId;
-            _clientSecret = clientSecret;
-            _admin = admin;
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await _admin.DeleteClientAsync(ClientId);
-        }
-
-        public string GetAuthorizationHeader()
-        {
-            return Convert.ToBase64String(Encoding.ASCII.GetBytes(ClientId + ":" + _clientSecret));
         }
     }
 }
