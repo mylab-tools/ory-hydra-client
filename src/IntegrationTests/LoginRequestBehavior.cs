@@ -18,7 +18,7 @@ namespace IntegrationTests
             var resp = await StartAuthenticateAsync();
 
             //Act
-            var loginDto = await AdminApi.GetLoginRequest(resp.LoginChallenge);
+            var loginDto = await AdminApi.GetLoginRequestAsync(resp.LoginChallenge);
 
             //Assert
             Assert.Empty(loginDto.Subject);

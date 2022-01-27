@@ -21,7 +21,7 @@ namespace IntegrationTests
                 await AfterLoginAcceptRequestAsync(loginResp.RedirectTo, startLoginResp.AuthCsrfCookie);
 
             //Act
-            var consentDto = await AdminApi.GetConsentRequest(afterLoginResp.ConsentChallenge);
+            var consentDto = await AdminApi.GetConsentRequestAsync(afterLoginResp.ConsentChallenge);
 
             //Assert
             Assert.Equal("foo", consentDto.Subject);

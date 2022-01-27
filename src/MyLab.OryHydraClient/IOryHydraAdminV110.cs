@@ -50,14 +50,14 @@ namespace MyLab.OryHydraClient
         /// </summary>
         /// <remarks>https://www.ory.sh/hydra/docs/next/reference/api/#operation/getLoginRequest</remarks>
         [Get("oauth2/auth/requests/login")]
-        Task<LoginRequestDto> GetLoginRequest([Query("login_challenge")] string loginChallenge);
+        Task<LoginRequestDto> GetLoginRequestAsync([Query("login_challenge")] string loginChallenge);
 
         /// <summary>
         /// Provides consent request details
         /// </summary>
         /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/getConsentRequest</remarks>
         [Get("oauth2/auth/requests/consent")]
-        Task<LoginConsentDto> GetConsentRequest([Query("consent_challenge")] string consentChallenge);
+        Task<LoginConsentDto> GetConsentRequestAsync([Query("consent_challenge")] string consentChallenge);
 
         /// <summary>
         /// Provider logout request details
