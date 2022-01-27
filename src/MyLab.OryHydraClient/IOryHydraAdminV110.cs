@@ -58,5 +58,27 @@ namespace MyLab.OryHydraClient
         /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/getConsentRequest</remarks>
         [Get("oauth2/auth/requests/consent")]
         Task<LoginConsentDto> GetConsentRequest([Query("consent_challenge")] string consentChallenge);
+
+        /// <summary>
+        /// Provider logout request details
+        /// </summary>
+        /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/getLogoutRequest</remarks>
+        [Get("oauth2/auth/requests/logout")]
+        Task<LogoutRequestDto> GetLogoutRequestAsync([Query("logout_challenge")] string logoutChallenge);
+
+        /// <summary>
+        /// When a user or an application requests ORY Hydra to log out a user, this endpoint is used to confirm that logout request. 
+        /// </summary>
+        /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/acceptLogoutRequest</remarks>
+        [Put("oauth2/auth/requests/logout/accept")]
+        Task<RedirectResponse> AcceptLogoutRequestAsync([Query("logout_challenge")] string logoutChallenge);
+
+        /// <summary>
+        /// When a user or an application requests ORY Hydra to log out a user, this endpoint is used to deny that logout request. 
+        /// </summary>
+        /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/rejectLogoutRequest</remarks>
+        [Put("oauth2/auth/requests/logout/reject")]
+        [ExpectedCode(HttpStatusCode.NoContent)]
+        Task RejectLogoutRequestAsync([Query("logout_challenge")] string logoutChallenge);
     }
 }
