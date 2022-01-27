@@ -15,7 +15,7 @@ namespace IntegrationTests
         public async Task ShouldProvideLoginRequestDetails()
         {
             //Arrange
-            var resp = await StartAuthenticate();
+            var resp = await StartAuthenticateAsync();
 
             //Act
             var loginDto = await AdminApi.GetLoginRequest(resp.LoginChallenge);

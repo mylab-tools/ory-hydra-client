@@ -2,18 +2,24 @@
 using System.Threading.Tasks;
 using MyLab.OryHydraClient;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace IntegrationTests
 {
-    public partial class TokenIssuingBehavior
+    public class TokenIssuingBehavior : ClientBasedTest
     {
+        public TokenIssuingBehavior(ITestOutputHelper output)
+            : base(output)
+        {
+        }
+
         [Fact]
         public async Task ShouldStartAuthorization()
         {
             //Arrange
 
             //Act
-            var resp = await StartAuthenticate();
+            var resp = await StartAuthenticateAsync();
 
             //Assert
             Assert.StartsWith(TestTools.LoginEndpoint + "?login_challenge=",resp.TargetLocation);
@@ -23,17 +29,13 @@ namespace IntegrationTests
         public async Task ShouldAcceptLoginRequest()
         {
             //Arrange
-            var authResp = await StartAuthenticate();
+            var authResp = await StartAuthenticateAsync();
             var loginChallenge = authResp.LoginChallenge;
 
-            var acceptReq = new AcceptLoginReqRequest
-            {
-                Subject = "foo"
-            };
-
+            
             //Act
-            var resp = await AdminApi.AcceptLoginRequestAsync(acceptReq, loginChallenge);
-            var redirectUrl = await AfterLoginAcceptRequest(resp.ResponseContent.RedirectTo, authResp.AuthCsrfCookie);
+            var resp = await AcceptLoginAsync("foo", loginChallenge);
+            var redirectUrl = await AfterLoginAcceptRequestAsync(resp.RedirectTo, authResp.AuthCsrfCookie);
 
             Output.WriteLine("URL: " + redirectUrl);
 
@@ -45,15 +47,10 @@ namespace IntegrationTests
         public async Task ShouldConsentLoginRequest()
         {
             //Arrange
-            var authResp = await StartAuthenticate();
-            var accLoginResp = await AdminApi.AcceptLoginRequestAsync(
-                new AcceptLoginReqRequest
-                {
-                    Subject = "foo"
-                }, 
-                authResp.LoginChallenge);
+            var authResp = await StartAuthenticateAsync();
+            var accLoginResp = await AcceptLoginAsync("foo", authResp.LoginChallenge);
 
-            var afterLoginAccResp = await AfterLoginAcceptRequest(accLoginResp.ResponseContent.RedirectTo, authResp.AuthCsrfCookie);
+            var afterLoginAccResp = await AfterLoginAcceptRequestAsync(accLoginResp.RedirectTo, authResp.AuthCsrfCookie);
 
             var consentRequest = new AcceptConsentReqRequest
             {
@@ -77,7 +74,7 @@ namespace IntegrationTests
             //Act
             var acceptConsentResponse = await AdminApi.AcceptConsentRequestAsync(consentRequest, afterLoginAccResp.ConsentChallenge);
 
-            var callbackUrl = await AfterConsentAcceptRequest(acceptConsentResponse.RedirectTo, afterLoginAccResp.ConsentCsrfCookie);
+            var callbackUrl = await AfterConsentAcceptRequestAsync(acceptConsentResponse.RedirectTo, afterLoginAccResp.ConsentCsrfCookie);
 
             Output.WriteLine("URL: " + callbackUrl);
 
