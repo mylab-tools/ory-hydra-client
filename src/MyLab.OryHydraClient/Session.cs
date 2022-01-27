@@ -9,12 +9,12 @@ namespace MyLab.OryHydraClient
         /// AccessToken sets session data for the access 
         /// </summary>
         [JsonProperty("access_token")]
-        public Dictionary<string, string> AccessToken { get; set; }
+        public Dictionary<string, object> AccessToken { get; set; }
 
         /// <summary>
         /// IDToken sets session data for the OpenID Connect ID token.
         /// </summary>
         [JsonProperty("id_token")]
-        public Dictionary<string, string> IdToken { get; set; }
+        public Dictionary<string, object> IdToken { get; set; }
     }
 }

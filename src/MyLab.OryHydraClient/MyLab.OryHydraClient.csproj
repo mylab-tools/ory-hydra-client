@@ -2,10 +2,36 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyVersion>0.0.2.2601</AssemblyVersion>
+    <FileVersion>0.0.2.2601</FileVersion>
+    <PackageTags>ory hydra</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mylab-tools/ory-hydra-client.git</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>tools.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/mylab-tools/ory-hydra-client</PackageProjectUrl>
+    <Authors>Andrey O.</Authors>
+    <Description>Web API clietn fro Ory Hydra</Description>
+    <Version>0.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MyLab.ApiClient" Version="3.12.24" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="tools.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

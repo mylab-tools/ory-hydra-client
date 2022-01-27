@@ -59,11 +59,11 @@ namespace IntegrationTests
             {
                 Session = new Session
                 {
-                    AccessToken = new Dictionary<string, string>
+                    AccessToken = new Dictionary<string, object>
                     {
                         {"name", "Bob"}
                     },
-                    IdToken = new Dictionary<string, string>
+                    IdToken = new Dictionary<string, object>
                     {
                         {"role", "tester"}
                     }
