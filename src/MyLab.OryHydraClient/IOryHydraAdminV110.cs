@@ -87,5 +87,19 @@ namespace MyLab.OryHydraClient
         /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/listSubjectConsentSessions</remarks>
         [Get("oauth2/auth/sessions/consent")]
         Task<ConsentSessionDto[]> GetSubjectSessionsAsync([Query]string subject);
+
+        /// <summary>
+        /// This endpoint tells ORY Hydra that the subject has not authenticated and includes a reason why the authentication was be denied.
+        /// </summary>
+        /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/rejectLoginRequest</remarks>
+        [Put("oauth2/auth/requests/login/reject")]
+        Task<RedirectResponse> RejectLoginRequest([Query("login_challenge")] string loginChallenge, [JsonContent]ErrorRequest errorRequest);
+
+        /// <summary>
+        /// This endpoint tells ORY Hydra that the subject has not authorized the OAuth 2.0 client to access resources on his/her behalf. The consent provider must include a reason why the consent was not granted.
+        /// </summary>
+        /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/rejectConsentRequest</remarks>
+        [Put("oauth2/auth/requests/consent/reject")]
+        Task<RedirectResponse> RejectConsentRequest([Query("consent_challenge")] string consentChallenge, [JsonContent] ErrorRequest errorRequest);
     }
 }
