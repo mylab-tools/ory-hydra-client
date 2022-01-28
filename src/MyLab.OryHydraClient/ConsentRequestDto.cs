@@ -60,7 +60,7 @@ namespace MyLab.OryHydraClient
         /// Skip, if true, implies that the client has requested the same scopes from the same user previously
         /// </summary>
         [JsonProperty("skip")]
-        public bool Skip { get; set; }
+        public bool? Skip { get; set; }
 
         /// <summary>
         /// Subject is the user ID of the end-user that authenticated. Now, that end user needs to grant or deny the scope requested by the OAuth 2.0 client.

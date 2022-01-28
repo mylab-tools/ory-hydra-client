@@ -24,7 +24,7 @@ namespace MyLab.OryHydraClient
         /// Remember, if set to true, tells ORY Hydra to remember this consent authorization and reuse it if the same client asks the same user for the same, or a subset of, scope.
         /// </summary>
         [JsonProperty("remember")]
-        public bool Remember { get; set; }
+        public bool? Remember { get; set; }
 
         /// <summary>
         /// RememberFor sets how long the consent authorization should be remembered for in seconds. If set to 0, the authorization will be remembered indefinitely.
