@@ -28,12 +28,16 @@ namespace IntegrationTests
             return TestTools.StartAuthenticate(PubApi, Client.ClientId);
         }
 
-        protected Task<RedirectResponse> AcceptLoginAsync(string subject, string loginChallenge)
+        protected Task<RedirectResponse> AcceptLoginAsync(string subject, string loginChallenge, bool? remember = null)
         {
-            return AcceptLoginAsync(new AcceptLoginReqRequest
+            var req = new AcceptLoginReqRequest
             {
-                Subject = subject
-            }, loginChallenge);
+                Subject = subject,
+                Remember = remember,
+                RememberFor = remember.GetValueOrDefault() ? 1000 : null
+            };
+
+            return AcceptLoginAsync(req, loginChallenge);
         }
 
         protected Task<RedirectResponse> AcceptLoginAsync(AcceptLoginReqRequest req, string loginChallenge)
@@ -41,7 +45,7 @@ namespace IntegrationTests
             return AdminApi.AcceptLoginRequestAsync(req, loginChallenge);
         }
 
-        protected async Task<(string TargetLocation, string ConsentChallenge, string AuthSessCookie, string ConsentCsrfCookie)> AfterLoginAcceptRequestAsync(string uri, string authCsrfCookie)
+        protected async Task<(string TargetLocation, string ConsentChallenge, string AuthSessCookie, string ConsentCsrfCookie)> VerifyLoginAcceptRequestAsync(string uri, string authCsrfCookie)
         {
             var httpHandler = new HttpClientHandler();
 
@@ -78,7 +82,7 @@ namespace IntegrationTests
 
             return (locationStr, consentChallenge, authSessCookie, consentCsrfCookie);
         }
-        protected async Task<string> AfterConsentAcceptRequestAsync(string uri, string consentCsrfCookie)
+        protected async Task<string> VerifyConsentAcceptRequestAsync(string uri, string consentCsrfCookie)
         {
             var httpHandler = new HttpClientHandler();
 

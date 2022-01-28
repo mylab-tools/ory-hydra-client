@@ -19,6 +19,8 @@ namespace IntegrationTests
         public const string ScopesFooBar = ScopeFoo + " " + ScopeBar + " " + "openid";
 
         public const string LoginEndpoint = "http://localhost/test/login";
+        public const string LogoutEndpoint = "http://localhost/test/logout";
+        public const string PostLogoutEndpoint = "http://localhost/test/post-logout";
         public const string ConsentEndpoint = "http://localhost/test/consent";
         public const string HydraPublicPoint = "https://localhost:9000";
 
@@ -55,7 +57,7 @@ namespace IntegrationTests
         public static async Task<(string TargetLocation, string LoginChallenge, string AuthCsrfCookie)> StartAuthenticate(
             IOryHydraPublicV110 api, string clientId, string state = "foo-state")
         {
-            var resp = await api.Authenticate(TestTools.ScopesFooBar, clientId, TestTools.AvailableRedirectUri,
+            var resp = await api.AuthenticateAsync(TestTools.ScopesFooBar, clientId, TestTools.AvailableRedirectUri,
                 state);
 
             var targetLocation = resp?.ResponseMessage?.Headers?.Location?.ToString();

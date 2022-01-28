@@ -57,7 +57,7 @@ namespace MyLab.OryHydraClient
         /// </summary>
         /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/getConsentRequest</remarks>
         [Get("oauth2/auth/requests/consent")]
-        Task<LoginConsentDto> GetConsentRequestAsync([Query("consent_challenge")] string consentChallenge);
+        Task<ConsentRequestDto> GetConsentRequestAsync([Query("consent_challenge")] string consentChallenge);
 
         /// <summary>
         /// Provider logout request details
@@ -80,5 +80,12 @@ namespace MyLab.OryHydraClient
         [Put("oauth2/auth/requests/logout/reject")]
         [ExpectedCode(HttpStatusCode.NoContent)]
         Task RejectLogoutRequestAsync([Query("logout_challenge")] string logoutChallenge);
+
+        /// <summary>
+        /// This endpoint lists all subject's granted consent sessions, including client and granted scope. If the subject is unknown or has not granted any consent sessions yet, the endpoint returns an empty JSON array with status code 200 OK.
+        /// </summary>
+        /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/listSubjectConsentSessions</remarks>
+        [Get("oauth2/auth/sessions/consent")]
+        Task<ConsentSessionDto[]> GetSubjectSessionsAsync([Query]string subject);
     }
 }

@@ -6,7 +6,7 @@ namespace MyLab.OryHydraClient
     /// <summary>
     /// Contains consent details
     /// </summary>
-    public class LoginConsentDto
+    public class ConsentRequestDto
     {
         /// <summary>
         /// ACR represents the Authentication AuthorizationContext Class Reference value for this authentication session.

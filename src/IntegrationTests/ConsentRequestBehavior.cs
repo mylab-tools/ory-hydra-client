@@ -18,7 +18,7 @@ namespace IntegrationTests
             var startLoginResp = await StartAuthenticateAsync();
             var loginResp = await AcceptLoginAsync("foo", startLoginResp.LoginChallenge);
             var afterLoginResp =
-                await AfterLoginAcceptRequestAsync(loginResp.RedirectTo, startLoginResp.AuthCsrfCookie);
+                await VerifyLoginAcceptRequestAsync(loginResp.RedirectTo, startLoginResp.AuthCsrfCookie);
 
             //Act
             var consentDto = await AdminApi.GetConsentRequestAsync(afterLoginResp.ConsentChallenge);

@@ -35,7 +35,7 @@ namespace IntegrationTests
             
             //Act
             var resp = await AcceptLoginAsync("foo", loginChallenge);
-            var redirectUrl = await AfterLoginAcceptRequestAsync(resp.RedirectTo, authResp.AuthCsrfCookie);
+            var redirectUrl = await VerifyLoginAcceptRequestAsync(resp.RedirectTo, authResp.AuthCsrfCookie);
 
             Output.WriteLine("URL: " + redirectUrl);
 
@@ -50,7 +50,7 @@ namespace IntegrationTests
             var authResp = await StartAuthenticateAsync();
             var accLoginResp = await AcceptLoginAsync("foo", authResp.LoginChallenge);
 
-            var afterLoginAccResp = await AfterLoginAcceptRequestAsync(accLoginResp.RedirectTo, authResp.AuthCsrfCookie);
+            var afterLoginAccResp = await VerifyLoginAcceptRequestAsync(accLoginResp.RedirectTo, authResp.AuthCsrfCookie);
 
             var consentRequest = new AcceptConsentReqRequest
             {
@@ -74,13 +74,16 @@ namespace IntegrationTests
             //Act
             var acceptConsentResponse = await AdminApi.AcceptConsentRequestAsync(consentRequest, afterLoginAccResp.ConsentChallenge);
 
-            var callbackUrl = await AfterConsentAcceptRequestAsync(acceptConsentResponse.RedirectTo, afterLoginAccResp.ConsentCsrfCookie);
+            var callbackUrl = await VerifyConsentAcceptRequestAsync(acceptConsentResponse.RedirectTo, afterLoginAccResp.ConsentCsrfCookie);
+
+            var sessions = await AdminApi.GetSubjectSessionsAsync("foo");
 
             Output.WriteLine("URL: " + callbackUrl);
 
             //Assert
             Assert.StartsWith(TestTools.AvailableRedirectUri, callbackUrl);
             Assert.DoesNotContain("error", callbackUrl);
+            Assert.Contains(sessions, s => s.ConsentRequest.Challenge == afterLoginAccResp.ConsentChallenge);
         }
     }
 }

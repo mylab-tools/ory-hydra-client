@@ -2,7 +2,9 @@ dsn: 'mysql://hydra:hydrapass@tcp(mysql:3306)/hydra?parseTime=true'
 
 urls:
   login: http://localhost/test/login
+  logout: http://localhost/test/logout
   consent: http://localhost/test/consent
+  post_logout_redirect: http://localhost/test/post-logout
   self:
     issuer: https://localhost:9000/
 

@@ -34,11 +34,22 @@ namespace MyLab.OryHydraClient
         /// <remarks>https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint</remarks>
         [Get("oauth2/auth")]
         [ExpectedCode(HttpStatusCode.Redirect)]
-        Task<CallDetails> Authenticate(
+        Task<CallDetails> AuthenticateAsync(
             [Query("scope")]string scope, 
             [Query("client_id")]string clientId, 
             [Query("redirect_uri")]string redirectUri, 
             [Query("state")]string state, 
             [Query("response_type")]string responseType = "code");
+
+        /// <summary>
+        /// This endpoint initiates and completes user logout at ORY Hydra and initiates OpenID Connect Front-/Back-channel logout:
+        /// https://openid.net/specs/openid-connect-frontchannel-1_0.html
+        /// https://openid.net/specs/openid-connect-backchannel-1_0.html
+        /// </summary>
+        /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/disconnectUser</remarks>
+        [Get("oauth2/sessions/logout")]
+        [ExpectedCode(HttpStatusCode.Redirect)]
+        [ExpectedCode(HttpStatusCode.NoContent)]
+        Task<CallDetails> LogoutAsync([Header("cookie")] string sessionCookie);
     }
 }
