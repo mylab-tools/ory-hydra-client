@@ -46,9 +46,14 @@ namespace IntegrationTests
             //Arrange
             var loginResp = await LoginAsync(); 
             
-            //var sessions1Probe = await AdminApi.GetSubjectSessionsAsync("foo");
+            var sessions1Probe = await AdminApi.GetSubjectSessionsAsync("foo");
 
             var logoutChallenge = await LogoutAsync(loginResp.AuthSessCookie);
+
+            var logoutRequest = await AdminApi.GetLogoutRequestAsync(logoutChallenge);
+
+            Output.WriteLine("Logout req:");
+            Output.WriteLine(JsonConvert.SerializeObject(logoutRequest, Formatting.Indented));
 
             //Act
             var logoutResp = await AdminApi.AcceptLogoutRequestAsync(logoutChallenge);
@@ -57,12 +62,12 @@ namespace IntegrationTests
 
             Output.WriteLine("Post logout redirect: " + logoutRedirectUrl);
             
-            //var sessions2Probe = await AdminApi.GetSubjectSessionsAsync("foo");
+            var sessions2Probe = await AdminApi.GetSubjectSessionsAsync("foo");
 
-            //Output.WriteLine("Probe1:");
-            //Output.WriteLine(JsonConvert.SerializeObject(sessions1Probe, Formatting.Indented));
-            //Output.WriteLine("Probe2:");
-            //Output.WriteLine(JsonConvert.SerializeObject(sessions2Probe, Formatting.Indented));
+            Output.WriteLine("Probe1:");
+            Output.WriteLine(JsonConvert.SerializeObject(sessions1Probe, Formatting.Indented));
+            Output.WriteLine("Probe2:");
+            Output.WriteLine(JsonConvert.SerializeObject(sessions2Probe, Formatting.Indented));
 
             //Assert
             Assert.StartsWith(TestTools.PostLogoutEndpoint, logoutRedirectUrl);
@@ -111,7 +116,8 @@ namespace IntegrationTests
 
             var consentResp = await AdminApi.AcceptConsentRequestAsync(new AcceptConsentReqRequest
             {
-
+                Remember = true,
+                RememberFor = 1000
             }, afterLoginAccResp.ConsentChallenge);
 
             await VerifyConsentAcceptRequestAsync(consentResp.RedirectTo, afterLoginAccResp.ConsentCsrfCookie);
