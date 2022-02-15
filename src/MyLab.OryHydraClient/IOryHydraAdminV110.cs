@@ -101,5 +101,13 @@ namespace MyLab.OryHydraClient
         /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/rejectConsentRequest</remarks>
         [Put("oauth2/auth/requests/consent/reject")]
         Task<RedirectResponse> RejectConsentRequest([Query("consent_challenge")] string consentChallenge, [JsonContent] ErrorRequest errorRequest);
+
+        /// <summary>
+        /// This endpoint invalidates a subject's authentication session. After revoking the authentication session, the subject has to re-authenticate at ORY Hydra
+        /// </summary>
+        /// <remarks>https://www.ory.sh/hydra/docs/reference/api/#operation/revokeAuthenticationSession</remarks>
+        [ExpectedCode(HttpStatusCode.NoContent)]
+        [Delete("oauth2/auth/sessions/login")]
+        Task InvalidateAllLoginSessions([Query]string subject);
     }
 }
