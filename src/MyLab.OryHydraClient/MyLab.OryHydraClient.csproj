@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyVersion>0.0.4.2801</AssemblyVersion>
-    <FileVersion>0.0.4.2801</FileVersion>
+    <AssemblyVersion>0.0.5.1502</AssemblyVersion>
+    <FileVersion>0.0.5.1502</FileVersion>
     <PackageTags>ory hydra</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/mylab-tools/ory-hydra-client.git</RepositoryUrl>
@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://github.com/mylab-tools/ory-hydra-client</PackageProjectUrl>
     <Authors>Andrey O.</Authors>
     <Description>Web API clietn fro Ory Hydra</Description>
-    <Version>0.0.4</Version>
+    <Version>0.0.5</Version>
   </PropertyGroup>
 
   <ItemGroup>
